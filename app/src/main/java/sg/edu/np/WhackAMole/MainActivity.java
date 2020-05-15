@@ -14,20 +14,25 @@ import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
-    /* Hint
-        - The function setNewMole() uses the Random class to generate a random value ranged from 0 to 2.
-        - The function doCheck() takes in button selected and computes a hit or miss and adjust the score accordingly.
-        - The function doCheck() also decides if the user qualifies for the advance level and triggers for a dialog box to ask for user to decide.
-        - The function nextLevelQuery() builds the dialog box and shows. It also triggers the nextLevel() if user selects Yes or return to normal state if user select No.
-        - The function nextLevel() launches the new advanced page.
-        - Feel free to modify the function to suit your program.
-    */
+    private static final String TAG ="Whack-A-Mole";
+    private Button middle_button;
+    private Button right_button;
+    private Button left_button;
+    private String mole;
+    private int score;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        left_button = findViewById(R.id.left);
+        middle_button = findViewById(R.id.middle);
+        right_button = findViewById(R.id.right);
+
+        left_button.setOnClickListener(buttonOnClickListener);
+        middle_button.setOnClickListener(buttonOnClickListener);
+        right_button.setOnClickListener(buttonOnClickListener);
         Log.v(TAG, "Finished Pre-Initialisation!");
 
 
@@ -51,27 +56,143 @@ public class MainActivity extends AppCompatActivity {
         finish();
     }
 
-    private void doCheck(Button checkButton) {
-        /* Checks for hit or miss and if user qualify for advanced page.
-            Triggers nextLevelQuery().
-         */
-    }
+    private View.OnClickListener buttonOnClickListener = new View.OnClickListener() {
+        Button test;
+        @Override
+        public void onClick(View view) {
+            switch (view.getId()){
+                case R.id.left:{
+                    test = findViewById(R.id.left);
+                    break;
+                }
+                case R.id.middle:{
+                    test = findViewById(R.id.middle);
+                    break;
+                }
+                default:{
+                    test = findViewById(R.id.right);
+                    break;
+                }
+            }
+            doCheck(test);
+        }
+    };
 
-    private void nextLevelQuery(){
-        /*
-        Builds dialog box here.
-        Log.v(TAG, "User accepts!");
-        Log.v(TAG, "User decline!");
-        Log.v(TAG, "Advance option given to user!");
-        belongs here*/
+    private void doCheck(Button checkButton) {
+        TextView textView = (TextView) findViewById(R.id.textView);
+        switch (checkButton.getId()){
+            case R.id.left:{
+                if (left_button.getText() == "*" ){
+                    score += 1;
+                    Log.d(TAG, "Hit, score added!");
+                }
+                else {
+                    score -= 1;
+                    Log.d(TAG, "Missed, score deducted!");
+                }
+                Log.d(TAG, "Left button is clicked!");
+                textView.setText("Score is: " + score);
+                setNewMole();
+                break;
+            }
+            case R.id.middle:{
+                if (middle_button.getText() == "*"){
+                    score += 1;
+                    Log.d(TAG, "Hit, score added!");
+                }
+                else{
+                    score -= 1;
+                    Log.d(TAG, "Missed, score deducted!");
+                }
+                Log.d(TAG, "Middle button is clicked!");
+                textView.setText("Score is: " + score);
+                setNewMole();
+                break;
+            }
+            default:{
+                if (right_button.getText() == "*"){
+                    score += 1;
+                    Log.d(TAG, "Hit, score added!");
+                }
+                else{
+                    score -= 1;
+                    Log.d(TAG, "Missed, score deducted!");
+                }
+                Log.d(TAG, "Right button is clicked!");
+                textView.setText("Score is: " + score);
+                setNewMole();
+                break;
+            }
+        }
+        if (score % 10 == 0 ) {
+            nextLevelQuery();
+        }
     }
 
     private void nextLevel(){
-        /* Launch advanced page */
+        Intent in = new Intent(this,Main2Activity.class);
+        in.putExtra("Score",score);
+        startActivity(in);
+    }
+
+    private void nextLevelQuery() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle("Warning! Insane Whack-A-Mole Incoming!");
+        builder.setMessage("Would you like to advance to advanced mode?");
+        builder.setCancelable(true);
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener(){
+            public void onClick(DialogInterface dialog, int id){
+                Log.d(TAG, "User accepts!");
+                nextLevel();
+                Log.d(TAG, "Advance option given to user!");
+            }
+        });
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener(){
+            public void onClick(DialogInterface dialog, int id){
+                Log.d(TAG, "User decline!");
+            }
+        });
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 
     private void setNewMole() {
         Random ran = new Random();
         int randomLocation = ran.nextInt(3);
+        switch (randomLocation){
+            case 0:{
+                mole = "zero";
+                break;
+            }
+            case 1:{
+                mole = "one";
+                break;
+            }
+            default:{
+                mole = "two";
+                break;
+            }
+        }
+        switch (mole){
+            case "zero":{
+                left_button.setText("*");
+                middle_button.setText("O");
+                right_button.setText("O");
+                break;
+            }
+            case "one":{
+                left_button.setText("O");
+                middle_button.setText("*");
+                right_button.setText("O");
+                break;
+            }
+            default:{
+                left_button.setText("O");
+                middle_button.setText("O");
+                right_button.setText("*");
+                break;
+            }
+        }
     }
 }
